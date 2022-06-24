@@ -6,3 +6,15 @@ from django.views import View
 class HomeView(View):
     def get(self, request):
         return render(request,'basics/index.html')
+
+class AboutView(View):
+    def get(self, request):
+        return render(request,'basics/about.html')
+
+class ProductView(View):
+    def get(self, request):
+        return render(request,'basics/product.html')
+
+class ContactView(View):
+    def get(self, request):
+        return render(request,'basics/contact.html')
