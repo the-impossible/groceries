@@ -13,7 +13,7 @@ class AboutView(View):
 
 class ProductView(View):
     def get(self, request):
-        return render(request,'basics/product.html')
+        return render(request,'basics/product.html',)
 
 class ContactView(View):
     def get(self, request):

@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-=k+*51-7&h$j)_2s24%sx+&)+-!i@g6he1($@_*7pu(54)$z0x
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', '192.168.43.193']
 
 
 # Application definition
@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'OBMS_basics',
+    'OBMS_auth',
 ]
 
 MIDDLEWARE = [
@@ -65,12 +67,14 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'OBMS_basics.context_processors.cart_creator',
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = 'OBMS.wsgi.application'
+AUTH_USER_MODEL = 'OBMS_auth.Accounts'
 
 
 # Database
