@@ -1,19 +1,19 @@
-# from OBMS_basics.models import OrderItem
-# import uuid
+from OBMS_basics.models import OrderItem
+import uuid
 
-# def cart_creator(request):
-#     try:
-#         order_item = OrderItem.objects.get(session_id=['nonuser'], completed=False)
-#     except OrderItem.DoesNotExist:
-#         key = str(uuid.uuid4())
-#         request.session['nonuser'] = key
-#         order_item = OrderItem.objects.create(session_id=key, completed=False)
+def generate_session_id(request):
+    if not request.session['nonuser']:
+        request.session['nonuser'] = str(uuid.uuid4())
 
-#         return {
-#             'cart':order_item
-#         }
+    return {
+        'session_id':request.session['nonuser']
+    }
+    # try:
+    #     order_item = OrderItem.objects.get(session_id=request.session['nonuser'], completed=False)
+    # except:
+    #     request.session['nonuser'] = str(uuid.uuid4())
+    #     order_item = OrderItem.objects.create(session_id=request.session['nonuser'], completed=False)
 
-def cart_creator(request):
-
-    print('Hello world')
-    return {}
+    # return {
+    #     'order_item':order_item
+    # }
