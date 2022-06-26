@@ -388,26 +388,7 @@
          </h2>
       </div>
       <div class="row">
-         {% for product in products  %}
-         <div class="col-sm-6 col-md-4 col-lg-4">
-            <div class="box">
-               <div class="option_container">
-                  <div class="options">
-                     <a href="{{ product.get_add_to_cart_url }}" class="option1"> Add to Cart </a>
-                  </div>
-               </div>
-               <div class="img-box">
-                  <img src="{{ product.image.url }}" alt="">
-               </div>
-               <div class="detail-box">
-                  <h5>{{ product.title }}</h5>
-                  <h6>
-                     ₦{{ product.price }}
-                  </h6>
-               </div>
-            </div>
-         </div>
-         {% endfor %}
+         {% include "partials/basic_products.html" %}
       </div>
       <div class="btn-box">
          <a href="{% url 'basics:product' %}">

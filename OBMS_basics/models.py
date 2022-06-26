@@ -10,6 +10,8 @@ from OBMS_auth.models import Accounts
 class Product(models.Model):
     title = models.CharField(max_length=100)
     price = models.FloatField()
+    quantity = models.IntegerField(default=1)
+    description = models.TextField()
     slug = models.SlugField()
     image = models.ImageField(upload_to='uploads/')
 
@@ -17,7 +19,7 @@ class Product(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse("basics:product", kwargs={
+        return reverse("basics:product_detail", kwargs={
             'slug':self.slug
         })
 

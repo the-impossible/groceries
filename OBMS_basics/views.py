@@ -2,6 +2,7 @@
 from django.shortcuts import render, get_object_or_404, render, redirect
 from django.contrib import messages
 from django.views import View
+from django.views.generic import DetailView
 from django.utils import timezone
 
 #My App imports
@@ -28,6 +29,10 @@ class ProductView(View):
         }
         return render(request,'basics/product.html', context)
 
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = "basics/product_detail.html"
+
 class ContactView(View):
     def get(self, request):
         return render(request,'basics/contact.html')
@@ -41,8 +46,15 @@ def add_to_cart(request, slug):
     user_id = request.session['nonuser']
 
     order_item, created = OrderItem.objects.get_or_create(session_id=user_id, completed=False, product=product)
-
     order_qs = Order.objects.filter(session_id=user_id, ordered=False)
+
+    # Performing QUANTITY validation
+    quantity = request.POST.get('quantity')
+    if quantity != None:
+        requested_quantity = int(quantity) + order_item.quantity
+        if requested_quantity > product.quantity:
+            messages.error(request, 'Quantity requested for is greater than available quantity')
+            return redirect('basics:product_detail', slug=slug)
 
     if order_qs.exists():
         order = order_qs[0]
