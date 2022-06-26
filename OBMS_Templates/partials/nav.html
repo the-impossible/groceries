@@ -20,11 +20,11 @@
 
                 {% if request.user.is_authenticated %}
                 <li class="nav-item">
-                  <a class="nav-link" href="#">Account</a>
+                  <a class="nav-link" href="{% url 'auth:dashboard' %}">Account</a>
                </li>
                {% else %}
                <li class="nav-item">
-                  <a class="nav-link" href="#">Login</a>
+                  <a class="nav-link" href="{% url 'auth:login' %}">Login</a>
               </li>
                 {% endif %}
                <li class="nav-item">

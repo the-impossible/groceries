@@ -21,6 +21,7 @@ from django.conf import settings
 urlpatterns = [
     path('dev/', admin.site.urls),
     path('', include('OBMS_basics.urls', namespace='basics')),
+    path('auth/', include('OBMS_auth.urls', namespace='auth')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

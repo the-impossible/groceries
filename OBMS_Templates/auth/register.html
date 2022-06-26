@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Register{% endblock %}
+{% block head %} {% include "partials/auth_head.html" %}  {% endblock%}
+{% block body %}
+{% include "partials/preloader.html" %}
+<div class="login-form-bg h-100 mt-5">
+    <div class="container h-100">
+        <div class="row justify-content-center h-100">
+            <div class="col-xl-5 col-md-5 col-sm-12">
+                <div class="form-input-content">
+                    {% include "partials/messages.html" %}
+                    <div class="card login-form mb-0">
+                        <div class="card-body pt-5">
+                            <div class="row">
+                                <div class="mx-auto">
+                                    <a class="text-center" href="{% url 'basics:home' %}"> <img width="250" src="{% static 'images/logo.png' %}" alt="#" /></a>
+                                </div>
+                            </div>
+                            <form class="mt-5 mb-5 login-input" method="post">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    {{ form.fullname }}
+                                    {% if form.fullname.errors %}
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                    {{ form.fullname.errors }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                    {{ form.email.errors }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    {{ form.phone }}
+                                    {% if form.phone.errors %}
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                    {{ form.phone.errors }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    {{ form.password }}
+                                    {% if form.password.errors %}
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                    {{ form.password.errors }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <button class="btn login-form__btn submit w-100">Sign in</button>
+                            </form>
+                            <p class="mt-5 login-form__footer">Have an account? <a href="{% url 'auth:login' %}" class="text-primary">Sign in </a> now</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% include "partials/auth_script.html" %}
+{% endblock %}

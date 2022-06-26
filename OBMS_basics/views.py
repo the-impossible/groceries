@@ -37,10 +37,6 @@ class ContactView(View):
     def get(self, request):
         return render(request,'basics/contact.html')
 
-class DashboardView(View):
-    def get(self, request):
-        return render(request,'auth/dashboard.html')
-
 def add_to_cart(request, slug):
     product = get_object_or_404(Product, slug=slug)
     user_id = request.session['nonuser']

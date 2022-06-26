@@ -7,7 +7,6 @@ from OBMS_basics.views import (
     AboutView,
     ContactView,
     ProductView,
-    DashboardView,
     add_to_cart,
     remove_from_cart,
     ProductDetailView,
@@ -23,8 +22,7 @@ urlpatterns = [
     # PRODUCT
     path('product', ProductView.as_view(), name='product'),
     path('product_detail/<slug>/', ProductDetailView.as_view(), name='product_detail'),
-    # AUTH
-    path('dashboard', DashboardView.as_view(), name='dashboard'),
+
     # CART
     path('add_to_cart/<slug>/', add_to_cart, name='add_to_cart'),
     path('remove_from_cart/<slug>/', remove_from_cart, name='remove_from_cart'),
