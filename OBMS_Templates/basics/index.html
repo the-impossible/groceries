@@ -394,7 +394,6 @@
                <div class="option_container">
                   <div class="options">
                      <a href="{{ product.get_add_to_cart_url }}" class="option1"> Add to Cart </a>
-                     <a href="" class="option2"> View Details </a>
                   </div>
                </div>
                <div class="img-box">
@@ -411,7 +410,7 @@
          {% endfor %}
       </div>
       <div class="btn-box">
-         <a href="">
+         <a href="{% url 'basics:product' %}">
          View All products
          </a>
       </div>

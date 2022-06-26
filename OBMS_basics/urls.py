@@ -20,6 +20,7 @@ urlpatterns = [
     path('about', AboutView.as_view(), name='about'),
     path('contact', ContactView.as_view(), name='contact'),
     path('product', ProductView.as_view(), name='product'),
+    # AUTH
     path('dashboard', DashboardView.as_view(), name='dashboard'),
     # CART
     path('add_to_cart/<slug>/', add_to_cart, name='add_to_cart'),
