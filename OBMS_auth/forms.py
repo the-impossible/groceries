@@ -56,3 +56,40 @@ class AccountCreationForm(forms.ModelForm):
     class Meta:
         model = Accounts
         fields = ('fullname', 'email', 'phone', 'password')
+
+class EditAccountCreationForm(forms.ModelForm):
+    fullname = forms.CharField(required=True, help_text='Please enter your Fullname',widget=forms.TextInput(
+        attrs={
+            'class':'form-control',
+            'autofocus':'',
+            'placeholder':'Full name',
+        }
+    ))
+
+    email = forms.CharField(required=True,help_text='Email', widget=forms.TextInput(
+        attrs={
+            'class':'form-control',
+            'placeholder':'Email',
+            'type':'email'
+        }
+    ))
+
+    phone = forms.CharField(required=True,help_text='Phone Number', widget=forms.TextInput(
+        attrs={
+            'class':'form-control',
+            'placeholder':'Phone',
+            'type':'number'
+        }
+    ))
+
+    picture = forms.ImageField(required=False, widget=forms.FileInput(
+        attrs={
+                'class':'form-control',
+                'type':'file',
+                'accept':'image/png, image/jpeg'
+            }
+        ))
+
+    class Meta:
+        model = Accounts
+        fields = ('fullname', 'email', 'phone', 'picture')

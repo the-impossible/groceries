@@ -44,12 +44,12 @@
                 </ul>
             </li>
             <li>
-                <a href="javascript:void()" aria-expanded="false">
+                <a href="{% url 'auth:profile' %}" aria-expanded="false">
                     <i class="icon-user menu-icon"></i><span class="nav-text">Profile</span>
                 </a>
             </li>
             <li>
-                <a href="javascript:void()" aria-expanded="false">
+                <a style="cursor: pointer;" data-toggle="modal" data-target="#basicModal" aria-expanded="false">
                     <i class="icon-key menu-icon"></i><span class="nav-text">Logout</span>
                 </a>
             </li>

@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 
 # My app imports
-from OBMS_auth.forms import AccountCreationForm
+from OBMS_auth.forms import AccountCreationForm, EditAccountCreationForm
 
 # Create your views here.
 class DashboardView(View):
@@ -67,4 +67,13 @@ class LoginView(View):
 
 class ProfileView(View):
     def get(self, request):
-        return render(request,'auth/profile.html')
+        context = {
+            'form':EditAccountCreationForm(),
+        }
+        return render(request,'auth/profile.html', context)
+
+class LogoutView(View):
+    def post(self, request):
+        logout(request)
+        messages.success(request, 'You are now signed out!')
+        return redirect('auth:login')

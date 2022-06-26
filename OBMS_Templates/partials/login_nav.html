@@ -98,21 +98,42 @@
                 <li class="icons dropdown">
                     <div class="user-img c-pointer position-relative"   data-toggle="dropdown">
                         <span class="activity active"></span>
-                        <img src="{% static 'auth/images/user/1.png' %}" height="40" width="40" alt="">
+                        <img src="{% if request.user.imageURL != '' %} {{ request.user.imageURL }} {% else %} {% static 'uploaded/user.png' %} {% endif %}" width="40" height="40" alt="Profile">
                     </div>
                     <div class="drop-down dropdown-profile animated fadeIn dropdown-menu">
                         <div class="dropdown-content-body">
                             <ul>
                                 <li>
-                                    <a href="app-profile.html"><i class="icon-user"></i> <span>Profile</span></a>
+                                    <a href="{% url 'auth:profile' %}"><i class="icon-user"></i> <span>Profile</span></a>
                                 </li>
                                 <hr class="my-2">
-                                <li><a href="page-login.html"><i class="icon-key"></i> <span>Logout</span></a></li>
+                                <li><a style="cursor: pointer;" data-toggle="modal" data-target="#basicModal"><i class="icon-key" ></i> <span>Logout</span></a></li>
                             </ul>
                         </div>
                     </div>
                 </li>
             </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Logout Modal-->
+<div class="modal fade" id="basicModal" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ready to Leave?</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>×</span>
+                </button>
+            </div>
+            <div class="modal-body">Select "Log Out" below if you are ready to end your current session.</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+                <form action="{% url 'auth:logout' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-warning btn-block">Log out</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
