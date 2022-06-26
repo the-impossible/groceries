@@ -50,9 +50,13 @@ def add_to_cart(request, slug):
 
     # Performing QUANTITY validation
     quantity = request.POST.get('quantity')
-    if quantity != None:
+    requested_quantity = 0
+    try:
         requested_quantity = int(quantity) + order_item.quantity
-        if requested_quantity > product.quantity:
+    except TypeError:
+        requested_quantity = 1 + order_item.quantity
+
+    if requested_quantity > product.quantity:
             messages.error(request, 'Quantity requested for is greater than available quantity')
             return redirect('basics:product_detail', slug=slug)
 
