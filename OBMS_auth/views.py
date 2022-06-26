@@ -64,3 +64,7 @@ class LoginView(View):
         else:
             messages.error(request, 'All fields are required!!')
             return redirect('auth:login')
+
+class ProfileView(View):
+    def get(self, request):
+        return render(request,'auth/profile.html')
