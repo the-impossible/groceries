@@ -15,7 +15,7 @@ app_name = 'auth'
 urlpatterns = [
     # Dashboard
     path('dashboard', DashboardView.as_view(), name='dashboard'),
-    path('profile', ProfileView.as_view(), name='profile'),
+    path('profile/<int:user_id>', ProfileView.as_view(), name='profile'),
 
     # AUTH
     path('register', RegisterView.as_view(), name='register'),

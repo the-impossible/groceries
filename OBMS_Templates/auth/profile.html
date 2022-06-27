@@ -12,12 +12,13 @@
 			<div class="col p-md-0">
 				<ol class="breadcrumb">
 					<li class="breadcrumb-item"><a href="{% url 'auth:dashboard' %}">Dashboard</a></li>
-					<li class="breadcrumb-item active"><a href="{% url 'auth:profile' %}">Profile</a></li>
+					<li class="breadcrumb-item active"><a href="{% url 'auth:profile' user.id %}">Profile</a></li>
 				</ol>
 			</div>
 		</div>
 
 		<div class="container-fluid">
+			{% include "partials/messages.html" %}
 			<div class="row">
 				<div class="col-lg-7 col-xl-7">
 					<div class="card">
@@ -27,7 +28,7 @@
 
 								<div class="media-body">
 									<h3 class="mb-0">{{ user.fullname }}</h3>
-									<p class="text-muted mb-0"> {% if request.user.is_staff %} Admin {% else %} Customer {% endif %} </p>
+									<p class="text-muted mb-0"> {% if user.is_staff %} Admin {% else %} Customer {% endif %} </p>
 								</div>
 							</div>
 
@@ -63,7 +64,7 @@
 							<small class="text-muted float-end">profile</small>
 						  </div>
 						<div class="card-body">
-							<form method="post" class="form-profile">
+							<form method="post" class="form-profile" enctype="multipart/form-data">
 								{% csrf_token %}
 								<div class="row mb-3">
 									<div class="col-12"> {{ form.fullname }} </div>
@@ -103,7 +104,7 @@
 									{% endif %}
 									</label>
 								</div>
-								<button class="btn btn-outline-success btn-block" type="submit">Update Profile</button>
+								<button class="btn btn-outline-success btn-block" name="profile" type="submit">Update Profile</button>
 							</form>
 						</div>
 					</div>

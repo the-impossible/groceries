@@ -1,11 +1,12 @@
 # My django imports
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 
 # My app imports
 from OBMS_auth.forms import AccountCreationForm, EditAccountCreationForm
+from OBMS_auth.models import Accounts
 
 # Create your views here.
 class DashboardView(View):
@@ -66,10 +67,59 @@ class LoginView(View):
             return redirect('auth:login')
 
 class ProfileView(View):
-    def get(self, request):
+    def get(self, request, user_id):
+        user = get_object_or_404(Accounts, id=user_id)
+        form = EditAccountCreationForm(instance=user)
         context = {
-            'form':EditAccountCreationForm(),
+            'form':form,
+            'user':user,
         }
+        return render(request,'auth/profile.html', context)
+
+    def post(self, request, user_id):
+        user = get_object_or_404(Accounts, id=user_id)
+        form = EditAccountCreationForm(request.POST, request.FILES, instance=user)
+
+        if 'profile' in request.POST:
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Profile updated successfully!')
+                return redirect('auth:profile', user_id)
+            else:
+                messages.error(request, 'Error updating Profile!')
+            context = {
+                'form':form,
+                'user':user,
+            }
+        else:
+            password1 = request.POST.get('password1')
+            password2 = request.POST.get('password2')
+
+            context = {
+                'form':form,
+                'user':user,
+            }
+
+            if password1 and password2:
+                if password1 != password2:
+                    messages.error(request, 'Passwords does not match!')
+                    return redirect('auth:profile', user_id)
+
+                if len(password1) < 6 :
+                    messages.error(request, 'Password too short, ensure at least 6 characters!')
+                    return redirect('auth:profile', user_id)
+
+                user.set_password(password1)
+                user.save()
+
+                messages.success(request, 'Password reset successful!!')
+                if request.user == user:
+                    return redirect('auth:login')
+
+                if request.user.is_superuser:
+                    return redirect('auth:profile', user_id)
+                return redirect('auth:login')
+
         return render(request,'auth/profile.html', context)
 
 class LogoutView(View):
