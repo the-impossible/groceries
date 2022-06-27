@@ -56,7 +56,7 @@ def add_to_cart(request, slug):
             messages.error(request, 'Quantity requested for is greater than available quantity')
             # return redirect('basics:product_detail', slug=slug)
             if request.user.is_authenticated:
-                return redirect('auth:all_products')
+                return redirect('auth:product_details', slug=slug)
             else:
                 return redirect('basics:product_detail', slug=slug)
 
@@ -76,7 +76,7 @@ def add_to_cart(request, slug):
         messages.success(request, "This Product has been added to Cart!")
 
     if request.user.is_authenticated:
-        return redirect('auth:all_products')
+        return redirect('auth:product_details', slug=slug)
     else:
         return redirect('basics:product_detail', slug=slug)
     # return redirect('basics:product_detail', slug=slug)

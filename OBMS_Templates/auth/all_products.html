@@ -25,11 +25,13 @@
 						{% for product in object_list %}
 						<div class="col-md-6 col-lg-3">
 							<div class="card">
-								<div class="embed-responsive embed-responsive-21by9">
-									<img class="img-fluid embed-responsive-item mt-2" src="{{ product.image.url }} " alt="">
-								</div>
-								<div class="card-body">
+								<a href="{% url 'auth:product_details' product.slug %}">
+									<div class="embed-responsive embed-responsive-21by9">
+										<img class="img-fluid embed-responsive-item mt-2" src="{{ product.image.url }} " alt="">
+									</div>
+									<div class="card-body">
 									<h5 class="card-title text-center">{{ product.title }}</h5>
+								</a>
 									<p class="card-text"><b>Price:</b> ₦{{product.price}}</p>
 									<p class="card-text"><b>Quantity:</b> {{product.quantity}}</p>
 									<div class="row">

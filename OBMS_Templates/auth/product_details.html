@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Products Details {% endblock %}
+{% block head %} {% include "partials/auth_head.html" %} {% endblock%}
+{% block body %}
+{% include "partials/preloader.html" %}
+<div id="main-wrapper">
+	{% include "partials/login_nav.html" %}
+    {% include "partials/sidebar.html" %}
+	<div class="content-body">
+		<div class="row page-titles mx-0">
+			<div class="col p-md-0">
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item"><a href="{% url 'auth:dashboard' %}">Dashboard</a></li>
+					<li class="breadcrumb-item active"><a href="{% url 'auth:all_products' %}"> all product</a></li>
+					<li class="breadcrumb-item active"><a href="{% url 'auth:product_details' object.slug %}">product details</a></li>
+				</ol>
+			</div>
+		</div>
+
+		<div class="container-fluid">
+			{% include "partials/messages.html" %}
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="card">
+						<div class="card-body">
+							<h4 class="card-title">{{ object.title }}</h4>
+							<div class="bootstrap-media">
+								<div class="media">
+									<img class="mr-3 img-fluid" src="{{ object.image.url }}" width="50%" alt="Generic placeholder image">
+									<div class="media-body">
+										<h5 class="mt-0">{{ object.title }}</h5>
+										<h5 class="mt-5">Price: ₦{{ object.price }}</h5>
+										<h5 class="mt-0">Quantity: {{ object.quantity }}</h5>
+										<p class="lead mt-2">{{ object.description }}</p>
+										<form method="post" action="{{ object.get_add_to_cart_url }}">
+											{% csrf_token %}
+											<div class="input-group mb-3">
+											   <input type="number" name="quantity" value="1" class="form-control">
+											   <button class="btn btn-outline-secondary" type="submit" id="button-addon2"> Add to cart <i class="fa fa-shopping-cart ml-1"></i></button>
+											 </div>
+										  </form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% include "partials/login_footer.html" %}
+</div>
+{% include "partials/auth_script.html" %}
+{% endblock %}

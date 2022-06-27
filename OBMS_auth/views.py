@@ -1,6 +1,6 @@
 # My django imports
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django.views import View
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
@@ -134,3 +134,9 @@ class AllProductsListView(ListView):
     model = Product
     paginate_by = 10
     template_name = "auth/all_products.html"
+
+class ProductDetailListView(DetailView):
+    model = Product
+    template_name = "auth/product_details.html"
+
+
