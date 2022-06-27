@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Available Products {% endblock %}
+{% block head %} {% include "partials/auth_head.html" %} {% endblock%}
+{% block body %}
+{% include "partials/preloader.html" %}
+<div id="main-wrapper">
+	{% include "partials/login_nav.html" %}
+    {% include "partials/sidebar.html" %}
+	<div class="content-body">
+		<div class="row page-titles mx-0">
+			<div class="col p-md-0">
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item"><a href="{% url 'auth:dashboard' %}">Dashboard</a></li>
+					<li class="breadcrumb-item active"><a href="{% url 'auth:all_products' %}">All products</a></li>
+				</ol>
+			</div>
+		</div>
+
+		<div class="container-fluid">
+			{% include "partials/messages.html" %}
+			<div class="row">
+				<div class="col-12 m-b-30">
+					<div class="row">
+						{% for product in object_list %}
+						<div class="col-md-6 col-lg-3">
+							<div class="card">
+								<div class="embed-responsive embed-responsive-21by9">
+									<img class="img-fluid embed-responsive-item mt-2" src="{{ product.image.url }} " alt="">
+								</div>
+								<div class="card-body">
+									<h5 class="card-title text-center">{{ product.title }}</h5>
+									<p class="card-text"><b>Price:</b> ₦{{product.price}}</p>
+									<p class="card-text"><b>Quantity:</b> {{product.quantity}}</p>
+									<div class="row">
+										<div class="mx-auto">
+											<a href="{{ product.get_add_to_cart_url }}" class="btn btn-outline-success">Add to Cart  <i class="fa fa-shopping-cart ml-1"></i></a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						{% endfor %}
+					</div>
+					{% if is_paginated %}
+					<div class="bootstrap-pagination mt-5">
+						<nav>
+							<ul class="pagination justify-content-center">
+								{% if page_obj.has_previous %}
+								<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+								</li>
+								{% endif %}
+								</li>
+								<li class="page-item active"><a class="page-link" href="?page={{ page_obj.number }}">{{ page_obj.number }}<span class="sr-only">(current)</span></a>
+								</li>
+								{% if page_obj.has_next %}
+								<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+								</li>
+								{% endif %}
+							</ul>
+						</nav>
+					</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+	{% include "partials/login_footer.html" %}
+</div>
+{% include "partials/auth_script.html" %}
+{% endblock %}

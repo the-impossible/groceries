@@ -1,5 +1,6 @@
 # My django imports
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import ListView
 from django.views import View
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
@@ -7,6 +8,7 @@ from django.contrib.auth import login, logout, authenticate
 # My app imports
 from OBMS_auth.forms import AccountCreationForm, EditAccountCreationForm
 from OBMS_auth.models import Accounts
+from OBMS_basics.models import Product
 
 # Create your views here.
 class DashboardView(View):
@@ -66,6 +68,12 @@ class LoginView(View):
             messages.error(request, 'All fields are required!!')
             return redirect('auth:login')
 
+class LogoutView(View):
+    def post(self, request):
+        logout(request)
+        messages.success(request, 'You are now signed out!')
+        return redirect('auth:login')
+
 class ProfileView(View):
     def get(self, request, user_id):
         user = get_object_or_404(Accounts, id=user_id)
@@ -122,8 +130,7 @@ class ProfileView(View):
 
         return render(request,'auth/profile.html', context)
 
-class LogoutView(View):
-    def post(self, request):
-        logout(request)
-        messages.success(request, 'You are now signed out!')
-        return redirect('auth:login')
+class AllProductsListView(ListView):
+    model = Product
+    paginate_by = 10
+    template_name = "auth/all_products.html"

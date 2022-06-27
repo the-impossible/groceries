@@ -54,7 +54,11 @@ def add_to_cart(request, slug):
 
     if requested_quantity > product.quantity:
             messages.error(request, 'Quantity requested for is greater than available quantity')
-            return redirect('basics:product_detail', slug=slug)
+            # return redirect('basics:product_detail', slug=slug)
+            if request.user.is_authenticated:
+                return redirect('auth:all_products')
+            else:
+                return redirect('basics:product_detail', slug=slug)
 
     if order_qs.exists():
         order = order_qs[0]
@@ -70,8 +74,12 @@ def add_to_cart(request, slug):
         order = Order.objects.create(session_id=user_id, order_date=ordered_date)
         order.product.add(order_item)
         messages.success(request, "This Product has been added to Cart!")
-    # Return to the product detail page
-    return redirect('basics:product')
+
+    if request.user.is_authenticated:
+        return redirect('auth:all_products')
+    else:
+        return redirect('basics:product_detail', slug=slug)
+    # return redirect('basics:product_detail', slug=slug)
 
 def remove_from_cart(request, slug):
     product = get_object_or_404(Product, slug=slug)
