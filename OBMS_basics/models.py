@@ -23,6 +23,7 @@ class Product(models.Model):
             'slug':self.slug
         })
 
+
     def get_add_to_cart_url(self):
         return reverse("basics:add_to_cart", kwargs={
             'slug':self.slug

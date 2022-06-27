@@ -1,6 +1,6 @@
 # My django imports
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, DetailView
+from django.shortcuts import render, redirect, get_object_or_404, reverse
+from django.views.generic import ListView, DetailView, UpdateView
 from django.views import View
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
@@ -139,4 +139,22 @@ class ProductDetailListView(DetailView):
     model = Product
     template_name = "auth/product_details.html"
 
+class ManageProductsView(ListView):
+    model = Product
+    template_name = "auth/manage_products.html"
 
+class EditProductsView(UpdateView):
+    model = Product
+    fields = [
+        "title",
+        "price",
+        "quantity",
+        "description",
+        "image",
+    ]
+    template_name = "auth/edit_product.html"
+
+    def get_success_url(self):
+        return reverse("auth:edit_product", kwargs={
+            'slug':self.kwargs['slug']
+        })

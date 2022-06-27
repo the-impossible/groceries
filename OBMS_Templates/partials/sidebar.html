@@ -7,7 +7,7 @@
             </li>
             <li class="mega-menu mega-menu-sm">
                 <a class="has-arrow" href="javascript:void()" aria-expanded="false">
-                    <i class="icon-globe-alt menu-icon"></i><span class="nav-text">Customer</span>
+                    <i class="icon-people menu-icon"></i><span class="nav-text">Customer</span>
                 </a>
                 <ul aria-expanded="false">
                     <li><a href="#">Create Customer Account</a></li>
@@ -16,7 +16,7 @@
             </li>
             <li class="mega-menu mega-menu-sm">
                 <a class="has-arrow" href="javascript:void()" aria-expanded="false">
-                    <i class="icon-globe-alt menu-icon"></i><span class="nav-text">Admin</span>
+                    <i class="icon-shield menu-icon"></i><span class="nav-text">Admin</span>
                 </a>
                 <ul aria-expanded="false">
                     <li><a href="#">Create Admin Account</a></li>
@@ -26,12 +26,12 @@
             <li class="nav-label">Products</li>
             <li>
                 <a class="has-arrow" href="javascript:void()" aria-expanded="false">
-                    <i class="icon-envelope menu-icon"></i> <span class="nav-text">Product</span>
+                    <i class="icon-bag menu-icon"></i> <span class="nav-text">Product</span>
                 </a>
                 <ul aria-expanded="false">
                     <li><a href="{% url 'auth:all_products' %}">Available Products</a></li>
                     <li><a href="./email-read.html">Add Product</a></li>
-                    <li><a href="./email-compose.html">Manage Products</a></li>
+                    <li><a href="{% url 'auth:manage_products' %}">Manage Products</a></li>
                 </ul>
             </li>
             <li class="nav-label">Orders</li>
