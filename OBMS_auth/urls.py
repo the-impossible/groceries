@@ -20,6 +20,10 @@ from OBMS_auth.views import (
     ManageCustomersView,
     AccountDeleteView,
     ProductDeleteView,
+
+    CreateAdminAccountView,
+    ManageAdminView,
+    DeleteAdmin,
 )
 
 app_name = 'auth'
@@ -33,6 +37,11 @@ urlpatterns = [
     path('add_customer', CreateAccountView.as_view(), name='add_customer'),
     path('manage_customer', ManageCustomersView.as_view(), name='manage_customer'),
     path('delete_customer/<pk>', AccountDeleteView.as_view(), name='delete_customer'),
+
+    # ADMIN
+    path('add_admin', CreateAdminAccountView.as_view(), name='add_admin'),
+    path('manage_admin', ManageAdminView.as_view(), name='manage_admin'),
+    path('delete_admin/<pk>', DeleteAdmin.as_view(), name='delete_admin'),
 
     # PRODUCT
     path('all_products', AllProductsListView.as_view(), name='all_products'),

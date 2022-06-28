@@ -201,10 +201,38 @@ class ManageCustomersView(ListView):
     def get_queryset(self):
         return Accounts.objects.filter(is_staff=False).order_by('-id')
 
-
 class AccountDeleteView(SuccessMessageMixin, DeleteView):
     model = Accounts
     success_message = "Account deleted successfully!"
 
     def get_success_url(self):
         return reverse("auth:manage_customer")
+
+class CreateAdminAccountView(SuccessMessageMixin, CreateView):
+    model = Accounts
+    form_class = AccountCreationForm
+    template_name = 'auth/add_admin.html'
+    success_message = "Account created successfully!"
+
+    def get_success_url(self):
+        return reverse("auth:add_admin")
+
+    def form_valid(self, form):
+        form.instance.set_password(form.cleaned_data.get('password'))
+        form.instance.email = form.cleaned_data.get('email').strip().lower()
+        form.instance.is_staff = True
+        return super().form_valid(form)
+
+class ManageAdminView(ListView):
+    model = Accounts
+    template_name = "auth/manage_admin.html"
+
+    def get_queryset(self):
+        return Accounts.objects.filter(is_staff=True).order_by('-id')
+
+class DeleteAdmin(AccountDeleteView):
+    def __init__(self, *args):
+        super(AccountDeleteView, self).__init__(*args)
+
+    def get_success_url(self):
+        return reverse("auth:manage_admin")

@@ -19,8 +19,8 @@
                     <i class="icon-shield menu-icon"></i><span class="nav-text">Admin</span>
                 </a>
                 <ul aria-expanded="false">
-                    <li><a href="#">Create Admin Account</a></li>
-                    <li><a href="#">Manage Admin Account</a></li>
+                    <li><a href="{% url 'auth:add_admin' %}">Create Admin Account</a></li>
+                    <li><a href="{% url 'auth:manage_admin' %}">Manage Admin Account</a></li>
                 </ul>
             </li>
             <li class="nav-label">Products</li>
