@@ -12,7 +12,7 @@ class Product(models.Model):
     price = models.FloatField()
     quantity = models.IntegerField(default=1)
     description = models.TextField()
-    slug = models.SlugField()
+    slug = models.SlugField(null=False, unique=True)
     image = models.ImageField(upload_to='uploads/')
 
     def __str__(self):

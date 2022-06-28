@@ -1,9 +1,12 @@
 # My django imports
 from django.shortcuts import render, redirect, get_object_or_404, reverse
-from django.views.generic import ListView, DetailView, UpdateView
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView
 from django.views import View
+from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
+from django.contrib.messages.views import SuccessMessageMixin
 
 # My app imports
 from OBMS_auth.forms import AccountCreationForm, EditAccountCreationForm
@@ -15,34 +18,26 @@ class DashboardView(View):
     def get(self, request):
         return render(request,'auth/dashboard.html')
 
-class RegisterView(View):
-    def get(self, request):
-        context = {
-            'form': AccountCreationForm()
-        }
-        return render(request,'auth/register.html', context)
+class RegisterView(SuccessMessageMixin, CreateView):
+    model = Accounts
+    form_class = AccountCreationForm
+    template_name = 'auth/register.html'
+    success_message = "Account created successfully, you can now login!!"
 
-    def post(self, request):
-        form = AccountCreationForm(request.POST)
-        if form.is_valid():
-            form = form.save(commit=False)
-            form.set_password(form.password)
-            form.save()
-            messages.success(request, 'Account created successfully, you can now login!')
-            return redirect('auth:login')
-        else:
-            messages.error(request, 'Error creating account!')
-            context = {
-                'form': form,
-            }
-        return render(request,'auth/register.html', context)
+    def get_success_url(self):
+        return reverse("auth:login")
+
+    def form_valid(self, form):
+        form.instance.set_password(form.cleaned_data.get('password'))
+        form.instance.email = form.cleaned_data.get('email').strip().lower()
+        return super().form_valid(form)
 
 class LoginView(View):
     def get(self, request):
         return render(request, 'auth/login.html')
 
     def post(self, request):
-        email = request.POST.get('email').strip()
+        email = request.POST.get('email').strip().lower()
         password = request.POST.get('password')
 
         if email and password:
@@ -132,8 +127,9 @@ class ProfileView(View):
 
 class AllProductsListView(ListView):
     model = Product
-    paginate_by = 10
+    paginate_by = 8
     template_name = "auth/all_products.html"
+    ordering = ['-id']
 
 class ProductDetailListView(DetailView):
     model = Product
@@ -143,8 +139,12 @@ class ManageProductsView(ListView):
     model = Product
     template_name = "auth/manage_products.html"
 
-class EditProductsView(UpdateView):
+    def get_queryset(self):
+        return Product.objects.filter(quantity__gte=1).order_by('-id')
+
+class EditProductsView(SuccessMessageMixin, UpdateView):
     model = Product
+    success_message = "Product has been edited successfully!"
     fields = [
         "title",
         "price",
@@ -158,3 +158,38 @@ class EditProductsView(UpdateView):
         return reverse("auth:edit_product", kwargs={
             'slug':self.kwargs['slug']
         })
+
+class AddProductView(CreateView):
+    model = Product
+    fields = [
+        "title",
+        "price",
+        "quantity",
+        "slug",
+        "description",
+        "image",
+    ]
+    template_name = 'auth/add_product.html'
+
+    success_url = reverse_lazy("auth:manage_products")
+
+def delete_product(request):
+    slug = request.POST.get('delete')
+    product = get_object_or_404(Product, slug=slug)
+    messages.success(request, f'{product.title} has been removed!!')
+    product.delete()
+    return redirect('auth:manage_products')
+
+class CreateAccountView(SuccessMessageMixin, CreateView):
+    model = Accounts
+    form_class = AccountCreationForm
+    template_name = 'auth/add_customer.html'
+    success_message = "Account created successfully!"
+
+    def get_success_url(self):
+        return reverse("auth:add_customer")
+
+    def form_valid(self, form):
+        form.instance.set_password(form.cleaned_data.get('password'))
+        form.instance.email = form.cleaned_data.get('email').strip().lower()
+        return super().form_valid(form)

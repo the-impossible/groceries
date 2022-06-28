@@ -10,7 +10,7 @@
                     <i class="icon-people menu-icon"></i><span class="nav-text">Customer</span>
                 </a>
                 <ul aria-expanded="false">
-                    <li><a href="#">Create Customer Account</a></li>
+                    <li><a href="{% url 'auth:add_customer' %}">Create Customer Account</a></li>
                     <li><a href="#">Manage Customer Account</a></li>
                 </ul>
             </li>
@@ -30,7 +30,7 @@
                 </a>
                 <ul aria-expanded="false">
                     <li><a href="{% url 'auth:all_products' %}">Available Products</a></li>
-                    <li><a href="./email-read.html">Add Product</a></li>
+                    <li><a href="{% url 'auth:add_product' %}">Add Product</a></li>
                     <li><a href="{% url 'auth:manage_products' %}">Manage Products</a></li>
                 </ul>
             </li>

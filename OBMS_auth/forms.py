@@ -5,7 +5,7 @@ from django import forms
 from OBMS_auth.models import Accounts
 
 class AccountCreationForm(forms.ModelForm):
-    fullname = forms.CharField(required=True, help_text='Please enter your Fullname',widget=forms.TextInput(
+    fullname = forms.CharField(required=True,widget=forms.TextInput(
         attrs={
             'class':'form-control',
             'autofocus':'',
@@ -13,7 +13,7 @@ class AccountCreationForm(forms.ModelForm):
         }
     ))
 
-    email = forms.CharField(required=True,help_text='Email', widget=forms.TextInput(
+    email = forms.CharField(required=True, widget=forms.TextInput(
         attrs={
             'class':'form-control',
             'placeholder':'Email',
@@ -21,7 +21,7 @@ class AccountCreationForm(forms.ModelForm):
         }
     ))
 
-    phone = forms.CharField(required=True,help_text='Phone Number', widget=forms.TextInput(
+    phone = forms.CharField(required=True, widget=forms.TextInput(
         attrs={
             'class':'form-control',
             'placeholder':'Phone',
