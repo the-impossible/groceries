@@ -173,12 +173,12 @@ class AddProductView(CreateView):
 
     success_url = reverse_lazy("auth:manage_products")
 
-def delete_product(request):
-    slug = request.POST.get('delete')
-    product = get_object_or_404(Product, slug=slug)
-    messages.success(request, f'{product.title} has been removed!!')
-    product.delete()
-    return redirect('auth:manage_products')
+class ProductDeleteView(SuccessMessageMixin, DeleteView):
+    model = Product
+    success_message = "Product deleted successfully!"
+
+    def get_success_url(self):
+        return reverse("auth:manage_products")
 
 class CreateAccountView(SuccessMessageMixin, CreateView):
     model = Accounts
@@ -193,3 +193,18 @@ class CreateAccountView(SuccessMessageMixin, CreateView):
         form.instance.set_password(form.cleaned_data.get('password'))
         form.instance.email = form.cleaned_data.get('email').strip().lower()
         return super().form_valid(form)
+
+class ManageCustomersView(ListView):
+    model = Accounts
+    template_name = "auth/manage_customer.html"
+
+    def get_queryset(self):
+        return Accounts.objects.filter(is_staff=False).order_by('-id')
+
+
+class AccountDeleteView(SuccessMessageMixin, DeleteView):
+    model = Accounts
+    success_message = "Account deleted successfully!"
+
+    def get_success_url(self):
+        return reverse("auth:manage_customer")
