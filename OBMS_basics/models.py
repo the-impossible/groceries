@@ -45,6 +45,9 @@ class OrderItem(models.Model):
     def __str__(self):
         return f'{self.quantity} of {self.product.title}'
 
+    def get_total_item_price(self):
+        return self.quantity * self.product.price
+
 # product assigned to an ORDER
 class Order(models.Model):
     user = models.ForeignKey(to=Accounts, on_delete=models.CASCADE, blank=True, null=True)
@@ -55,3 +58,6 @@ class Order(models.Model):
 
     def __str__(self):
         return f'{self.session_id}'
+
+    def get_total(self):
+        return sum([order_item.get_total_item_price() for order_item in self.product.all()])
