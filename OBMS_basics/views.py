@@ -34,7 +34,7 @@ class ProductDetailView(DetailView):
     model = Product
     template_name = "basics/product_detail.html"
 
-class OrderSummaryView(DetailView):
+class OrderSummaryView(View):
     def get(self, request):
         try:
             order = Order.objects.get(session_id=request.session['nonuser'], ordered=False)
@@ -99,7 +99,7 @@ def add_to_cart(request, slug):
     else:
         return redirect('basics:product_detail', slug=slug)
 
-def remove_from_cart(request, slug):
+def remove_from_cart(request, slug, mode='single'):
     product = get_object_or_404(Product, slug=slug)
     user_id = request.session['nonuser']
 
@@ -109,13 +109,28 @@ def remove_from_cart(request, slug):
         order = order_qs[0]
         if order.product.filter(product__slug=product.slug).exists():
             order_item = OrderItem.objects.filter(session_id=user_id, completed=False, product=product)[0]
-            order_item.delete()
-            order.product.remove(order_item)
-            messages.info(request, "This Product has been remove from Cart!")
+            if mode == 'all':
+                order_item.delete()
+                order.product.remove(order_item)
+                messages.info(request, "This Product has been remove from Cart!")
+            else:
+                if order_item.quantity > 1:
+                    order_item.quantity -= 1
+                    order_item.save()
+                    messages.info(request, "The Product quantity has been updated!")
+                else:
+                    order.product.remove(order_item)
+                    messages.info(request, "This Product has been remove from Cart!")
+            if request.user.is_authenticated:
+                return redirect('auth:order_summary')
+            else:
+                return redirect('basics:order_summary')
         else:
             messages.info(request, "This Product is not in your Cart!")
     else:
         messages.info(request, "User don't have an active order")
-        # Return to the product detail page
-    return redirect('basics:product')
+    if request.user.is_authenticated:
+        return redirect('auth:all_products')
+    else:
+        return redirect('basics:product')
 

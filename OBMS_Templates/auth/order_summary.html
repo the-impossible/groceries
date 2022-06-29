@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Order Summary{% endblock %}
+{% block head %} {% include "partials/auth_head.html" %} {% endblock%}
+{% block body %}
+{% include "partials/preloader.html" %}
+<div id="main-wrapper">
+	{% include "partials/login_nav.html" %}
+    {% include "partials/sidebar.html" %}
+	<div class="content-body">
+		<div class="row page-titles mx-0">
+			<div class="col p-md-0">
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item"><a href="{% url 'auth:dashboard' %}">Dashboard</a></li>
+					<li class="breadcrumb-item active"><a href="{% url 'auth:profile' user.id %}">Order Summary</a></li>
+				</ol>
+			</div>
+		</div>
+
+		<div class="container-fluid">
+			{% include "partials/messages.html" %}
+			<div class="row">
+				<div class="col-lg-8 col-xl-8">
+					<div class="card">
+						<div class="card-body">
+							<h3 class="card-header mb-0">Order summary</h3>
+							{% include "partials/summary.html" %}
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-4 col-xl-4">
+					<div class="card">
+						<div class="card-header d-flex align-items-center justify-content-between">
+							<h5 class="mb-0">Summary</h5>
+							<small class="text-muted float-end">orders</small>
+						  </div>
+						<div class="card-body">
+							<div class="basic-list-group">
+								<ul class="list-group">
+									{% for order_item in order.product.all  %}
+									<li class="list-group-item d-flex justify-content-between align-items-center">{{ order_item.product.title }} <span class="badge badge-primary badge-pill">{{ order_item.quantity }}</span>
+									</li>
+									{% endfor %}
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% include "partials/login_footer.html" %}
+</div>
+{% include "partials/auth_script.html" %}
+{% endblock %}

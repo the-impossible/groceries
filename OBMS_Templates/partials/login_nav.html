@@ -34,7 +34,7 @@
         </div>
         <div class="header-right">
             <ul class="clearfix">
-                <li class="icons dropdown"><a href="javascript:void(0)" data-toggle="dropdown">
+                <li class="icons dropdown"><a href="{% url 'auth:order_summary' %}" data-toggle="dropdown">
                     <i class="fa fa-shopping-cart"></i>
                     <span class="badge badge-pill gradient-1">{{ order_quantity }}</span>
                     </a>
@@ -47,26 +47,18 @@
                         </div>
                         <div class="dropdown-content-body">
                             <ul>
+                                {% for order_item in order.product.all|slice:":3"  %}
                                 <li class="notification-unread">
-                                    <a href="javascript:void()">
-                                        <img class="float-left mr-3 avatar-img" src="{% static 'auth/images/avatar/1.jpg' %}" alt="">
+                                    <a href="{% url 'auth:order_summary' %}">
+                                        <img class="float-left mr-3 avatar-img" src="{{ order_item.product.image.url }}" alt="">
                                         <div class="notification-content">
-                                            <div class="notification-heading">Saiful Islam</div>
-                                            <div class="notification-timestamp">08 Hours ago</div>
-                                            <div class="notification-text">Hi Teddy, Just wanted to let you ...</div>
+                                            <div class="notification-heading">{{ order_item.product.title }}</div>
+                                            <div class="notification-timestamp">Quantity: <b>{{ order_item.quantity }}</b></div>
+                                            <div class="notification-text">Price: <b>₦{{ order_item.product.price }}</b></div>
                                         </div>
                                     </a>
                                 </li>
-                                <li>
-                                    <a href="javascript:void()">
-                                        <img class="float-left mr-3 avatar-img" src="{% static 'auth/images/avatar/3.jpg' %}" alt="">
-                                        <div class="notification-content">
-                                            <div class="notification-heading">Barak Obama</div>
-                                            <div class="notification-timestamp">08 Hours ago</div>
-                                            <div class="notification-text">Hi Teddy, Just wanted to let you ...</div>
-                                        </div>
-                                    </a>
-                                </li>
+                                {% endfor %}
 
                             </ul>
 

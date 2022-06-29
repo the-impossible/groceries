@@ -7,11 +7,12 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import ObjectDoesNotExist
 
 # My app imports
 from OBMS_auth.forms import AccountCreationForm, EditAccountCreationForm
 from OBMS_auth.models import Accounts
-from OBMS_basics.models import Product
+from OBMS_basics.models import Product, Order
 
 # Create your views here.
 class DashboardView(View):
@@ -236,3 +237,15 @@ class DeleteAdmin(AccountDeleteView):
 
     def get_success_url(self):
         return reverse("auth:manage_admin")
+
+class OrderSummaryView(View):
+    def get(self, request):
+        try:
+            order = Order.objects.get(session_id=request.session['nonuser'], ordered=False)
+            context = {
+                'orders': order
+            }
+        except ObjectDoesNotExist:
+            messages.error(request, 'You do not have an active order')
+            return redirect('auth:all_products')
+        return render(request, 'auth/order_summary.html', context)

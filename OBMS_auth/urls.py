@@ -24,6 +24,8 @@ from OBMS_auth.views import (
     CreateAdminAccountView,
     ManageAdminView,
     DeleteAdmin,
+
+    OrderSummaryView,
 )
 
 app_name = 'auth'
@@ -42,6 +44,9 @@ urlpatterns = [
     path('add_admin', CreateAdminAccountView.as_view(), name='add_admin'),
     path('manage_admin', ManageAdminView.as_view(), name='manage_admin'),
     path('delete_admin/<pk>', DeleteAdmin.as_view(), name='delete_admin'),
+
+    # ORDER
+    path('order_summary', OrderSummaryView.as_view(), name='order_summary'),
 
     # PRODUCT
     path('all_products', AllProductsListView.as_view(), name='all_products'),
