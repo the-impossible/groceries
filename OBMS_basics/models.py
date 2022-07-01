@@ -61,3 +61,11 @@ class Order(models.Model):
 
     def get_total(self):
         return sum([order_item.get_total_item_price() for order_item in self.product.all()])
+
+class BillInformation(models.Model):
+    user = models.ForeignKey(to=Accounts, on_delete=models.CASCADE, blank=True, null=True)
+    address = models.CharField(max_length=200)
+    session_id = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f'{self.session_id}'

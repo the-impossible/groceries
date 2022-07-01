@@ -8,11 +8,14 @@ from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist
-
+from django.contrib.auth.mixins import LoginRequiredMixin
 # My app imports
-from OBMS_auth.forms import AccountCreationForm, EditAccountCreationForm
+from OBMS_auth.forms import AccountCreationForm, EditAccountCreationForm, BillingForm
 from OBMS_auth.models import Accounts
-from OBMS_basics.models import Product, Order
+from OBMS_basics.models import Product, Order, BillInformation
+import stripe
+stripe.api_key = "sk_test_51L5Xs6GCAqCizi1RncjTC84yc0J7jaecLFB5gj07ZDNWCREFyEylsunXTltlQleL3lWzEcLsqIFCInvn6wGYu2Xa00cIHRZjMz"
+
 
 # Create your views here.
 class DashboardView(View):
@@ -35,9 +38,13 @@ class RegisterView(SuccessMessageMixin, CreateView):
 
 class LoginView(View):
     def get(self, request):
-        return render(request, 'auth/login.html')
+        context = {
+            'next': request.GET.get('next', None)
+        }
+        return render(request, 'auth/login.html', context)
 
     def post(self, request):
+        jump_to =  request.POST.get('next', None)
         email = request.POST.get('email').strip().lower()
         password = request.POST.get('password')
 
@@ -49,10 +56,9 @@ class LoginView(View):
                 if user.is_active:
                     login(request, user)
                     messages.success(request, f'You are now signed in {user.get_name()}')
-                    if user.is_superuser:
+                    if jump_to == 'None':
                         return redirect('auth:dashboard')
-                    else:
-                        return redirect('auth:dashboard')
+                    return redirect(f"auth:{jump_to.split('/')[-1]}")
 
                 else:
                     messages.warning(request, 'Account not active contact the administrator')
@@ -249,3 +255,60 @@ class OrderSummaryView(View):
             messages.error(request, 'You do not have an active order')
             return redirect('auth:all_products')
         return render(request, 'auth/order_summary.html', context)
+
+def stripe_payment(email, fullname, amount, source):
+    try:
+        customer = stripe.Customer.create(
+            email = email,
+            name = fullname,
+            description = 'OBMS Goods payment',
+            source = source
+        )
+
+        charge = stripe.Charge.create(
+            customer=customer,
+            amount=amount * 100,
+            currency='NGN',
+            description='OBMS Goods payment',
+        )
+    except stripe.error.CardError:
+        messages.error(request, ('Your card has insufficient funds!!'))
+
+class CheckOutView(LoginRequiredMixin, View):
+    login_url = '/auth/login'
+
+    def get(self, request):
+        try:
+            order = Order.objects.get(session_id=request.session['nonuser'], ordered=False)
+            form = BillingForm(instance=request.user)
+            context = {
+                'orders': order,
+                'form': form
+            }
+        except ObjectDoesNotExist:
+            messages.error(request, 'You do not have an active order')
+            return redirect('auth:all_products')
+        return render(request, 'auth/checkout.html', context)
+
+    def post(self, request):
+        form = BillingForm(request.POST, instance=request.user)
+        if form.is_valid():
+            try:
+                order = Order.objects.get(session_id=request.session['nonuser'], ordered=False)
+            except ObjectDoesNotExist:
+                pass
+            else:
+                details = form.save(commit=False)
+                email = details.email
+                fullname = details.fullname
+                amount = order.get_total()
+
+                source = request.POST.get('stripeToken')
+                stripe_payment(email, fullname, amount, source)
+
+                BillInformation.objects.create(user=request.user, address=details.address, session_id=request.session['nonuser'])
+
+        context = {
+            'form':form,
+        }
+        return render(request, 'auth/checkout.html', context)

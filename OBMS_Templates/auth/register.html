@@ -51,6 +51,7 @@
                                     </div>
                                     {% endif %}
                                 </div>
+                                <input type="hidden" name="next" value="{{next}}" />
                                 <button class="btn login-form__btn submit w-100">Sign in</button>
                             </form>
                             <p class="mt-5 login-form__footer">Have an account? <a href="{% url 'auth:login' %}" class="text-primary">Sign in </a> now</p>
