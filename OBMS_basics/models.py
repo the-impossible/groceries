@@ -55,6 +55,8 @@ class Order(models.Model):
     order_date = models.DateTimeField()
     ordered = models.BooleanField(default=False)
     session_id = models.CharField(max_length=200)
+    billing = models.ForeignKey('BillingInformation', on_delete=models.SET_NULL, blank=True, null=True)
+    payment = models.ForeignKey('Payment', on_delete=models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
         return f'{self.session_id}'
@@ -62,10 +64,20 @@ class Order(models.Model):
     def get_total(self):
         return sum([order_item.get_total_item_price() for order_item in self.product.all()])
 
-class BillInformation(models.Model):
+class BillingInformation(models.Model):
     user = models.ForeignKey(to=Accounts, on_delete=models.CASCADE, blank=True, null=True)
     address = models.CharField(max_length=200)
     session_id = models.CharField(max_length=200)
 
     def __str__(self):
-        return f'{self.session_id}'
+        return f'{self.address}'
+
+class Payment(models.Model):
+    user = models.ForeignKey(to=Accounts, on_delete=models.CASCADE, blank=True, null=True)
+    stripe_charge_id = models.CharField(max_length=50, blank=True, null=True)
+    amount = models.FloatField()
+    date_created = models.DateTimeField(auto_now_add=True)
+    session_id = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f'{self.user} purchase goods worth: {self.amount}'

@@ -12,10 +12,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 # My app imports
 from OBMS_auth.forms import AccountCreationForm, EditAccountCreationForm, BillingForm
 from OBMS_auth.models import Accounts
-from OBMS_basics.models import Product, Order, BillInformation
+from OBMS_basics.models import Product, Order, BillingInformation, Payment, OrderItem
 import stripe
 stripe.api_key = "sk_test_51L5Xs6GCAqCizi1RncjTC84yc0J7jaecLFB5gj07ZDNWCREFyEylsunXTltlQleL3lWzEcLsqIFCInvn6wGYu2Xa00cIHRZjMz"
-
 
 # Create your views here.
 class DashboardView(View):
@@ -264,15 +263,30 @@ def stripe_payment(email, fullname, amount, source):
             description = 'OBMS Goods payment',
             source = source
         )
-
         charge = stripe.Charge.create(
             customer=customer,
             amount=amount * 100,
             currency='NGN',
             description='OBMS Goods payment',
         )
-    except stripe.error.CardError:
-        messages.error(request, ('Your card has insufficient funds!!'))
+        return charge
+    except stripe.error.CardError as e:
+        messages.error(request, f'{e.user_message}')
+    except stripe.error.RateLimitError as e:
+        messages.error(request, f'Too many request has been made quickly')
+    except stripe.error.InvalidRequestError as e:
+        messages.error(request, f'Invalid parameters supplied')
+    except stripe.error.AuthenticationError as e:
+        messages.error(request, f'Authentication with stripe failed')
+    except stripe.error.APIConnectionError as e:
+        messages.error(request, f'Network problem try again')
+    except stripe.error.StripeError as e:
+        # Display a very generic error to the user, and maybe send
+        # yourself an email
+        messages.error(request, f'Something went wrong, you were not charged please try again!')
+    except Exception as e:
+        # Something else happened, completely unrelated to Stripe
+        messages.error(request, f'Something serious went wrong, we have been notified!')
 
 class CheckOutView(LoginRequiredMixin, View):
     login_url = '/auth/login'
@@ -293,22 +307,60 @@ class CheckOutView(LoginRequiredMixin, View):
     def post(self, request):
         form = BillingForm(request.POST, instance=request.user)
         if form.is_valid():
-            try:
-                order = Order.objects.get(session_id=request.session['nonuser'], ordered=False)
-            except ObjectDoesNotExist:
-                pass
-            else:
-                details = form.save(commit=False)
-                email = details.email
-                fullname = details.fullname
-                amount = order.get_total()
+            order = Order.objects.get(session_id=request.session['nonuser'], ordered=False)
+            details = form.save(commit=False)
 
-                source = request.POST.get('stripeToken')
-                stripe_payment(email, fullname, amount, source)
+            email = details.email
+            fullname = details.fullname
+            amount = round(order.get_total())
+            address = request.POST.get('address')
 
-                BillInformation.objects.create(user=request.user, address=details.address, session_id=request.session['nonuser'])
+            if amount > 999999.99:
+                messages.warning(request, 'Amount cannot be greater than 99999999₦ on a Test payment')
+                return render(request, 'auth/checkout.html', {'form':form})
 
-        context = {
-            'form':form,
-        }
-        return render(request, 'auth/checkout.html', context)
+            # source = request.POST.get('stripeToken')
+            # charge = stripe_payment(email, fullname, amount, source)
+            # if charge:
+            #     pass
+            # else:
+            #     return render(request, 'auth/checkout.html', {'form':form})
+
+            # SUBTRACT quantity from product
+            for order in order.product.all():
+                product = Product.objects.get(slug=order.product.slug)
+                product.quantity -= order.quantity
+                product.save()
+
+
+            # CREATE the payment and billing
+            payment = Payment.objects.create(
+                user=request.user,
+                amount=amount,
+                stripe_charge_id='STRIPE_test',
+                # stripe_charge_id=charge['id]',
+                session_id=request.session['nonuser']
+            )
+            billing = BillingInformation.objects.create(
+                user=request.user,
+                address=address,
+                session_id=request.session['nonuser']
+            )
+            # ASSIGN payment, billing to the order and set ordered to be true
+            order.payment = payment
+            order.ordered = True
+            order.billing = billing
+            order.save()
+
+            # ASSIGN orderItem to user
+            order_item = OrderItem.objects.filter(session_id=request.session['nonuser'])
+            for item in order_item:
+                item.user = request.user
+                item.completed = True
+                item.save()
+
+            # If payment successful
+            messages.success(request, 'Order was successful!')
+            return redirect('auth:dashboard')
+
+        return render(request, 'auth/checkout.html', {'form':form})
