@@ -326,13 +326,6 @@ class CheckOutView(LoginRequiredMixin, View):
             # else:
             #     return render(request, 'auth/checkout.html', {'form':form})
 
-            # SUBTRACT quantity from product
-            for order in order.product.all():
-                product = Product.objects.get(slug=order.product.slug)
-                product.quantity -= order.quantity
-                product.save()
-
-
             # CREATE the payment and billing
             payment = Payment.objects.create(
                 user=request.user,
@@ -348,9 +341,17 @@ class CheckOutView(LoginRequiredMixin, View):
             )
             # ASSIGN payment, billing to the order and set ordered to be true
             order.payment = payment
+            order.user = request.user
             order.ordered = True
             order.billing = billing
             order.save()
+
+            # SUBTRACT quantity from product
+            print('ORDER', order.product.all())
+            for order in order.product.all():
+                product = Product.objects.get(slug=order.product.slug)
+                product.quantity -= order.quantity
+                product.save()
 
             # ASSIGN orderItem to user
             order_item = OrderItem.objects.filter(session_id=request.session['nonuser'])
