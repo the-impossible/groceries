@@ -57,6 +57,7 @@ class Order(models.Model):
     session_id = models.CharField(max_length=200)
     billing = models.ForeignKey('BillingInformation', on_delete=models.SET_NULL, blank=True, null=True)
     payment = models.ForeignKey('Payment', on_delete=models.SET_NULL, blank=True, null=True)
+    delivered = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.session_id}'

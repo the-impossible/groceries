@@ -19,7 +19,13 @@ stripe.api_key = "sk_test_51L5Xs6GCAqCizi1RncjTC84yc0J7jaecLFB5gj07ZDNWCREFyEyls
 # Create your views here.
 class DashboardView(View):
     def get(self, request):
-        return render(request,'auth/dashboard.html')
+
+        context = {
+            'customers':Accounts.objects.filter(is_staff=False).count(),
+            'products':Product.objects.all().count(),
+            'amount_sold':sum([amount.amount for amount in Payment.objects.all()]),
+        }
+        return render(request,'auth/dashboard.html', context)
 
 class RegisterView(SuccessMessageMixin, CreateView):
     model = Accounts
@@ -215,6 +221,8 @@ class AccountDeleteView(SuccessMessageMixin, DeleteView):
         return reverse("auth:manage_customer")
 
 class CreateAdminAccountView(SuccessMessageMixin, CreateView):
+    login_url = '/auth/login'
+
     model = Accounts
     form_class = AccountCreationForm
     template_name = 'auth/add_admin.html'
@@ -229,21 +237,27 @@ class CreateAdminAccountView(SuccessMessageMixin, CreateView):
         form.instance.is_staff = True
         return super().form_valid(form)
 
-class ManageAdminView(ListView):
+class ManageAdminView(LoginRequiredMixin, ListView):
+    login_url = '/auth/login'
+
     model = Accounts
     template_name = "auth/manage_admin.html"
 
     def get_queryset(self):
         return Accounts.objects.filter(is_staff=True).order_by('-id')
 
-class DeleteAdmin(AccountDeleteView):
+class DeleteAdmin(LoginRequiredMixin, AccountDeleteView):
+    login_url = '/auth/login'
+
     def __init__(self, *args):
         super(AccountDeleteView, self).__init__(*args)
 
     def get_success_url(self):
         return reverse("auth:manage_admin")
 
-class OrderSummaryView(View):
+class OrderSummaryView(LoginRequiredMixin, View):
+    login_url = '/auth/login'
+
     def get(self, request):
         try:
             order = Order.objects.get(session_id=request.session['nonuser'], ordered=False)
@@ -365,3 +379,14 @@ class CheckOutView(LoginRequiredMixin, View):
             return redirect('auth:dashboard')
 
         return render(request, 'auth/checkout.html', {'form':form})
+
+class MyOrderView(ListView):
+    model = Order
+    template_name = "auth/my_orders.html"
+
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user).order_by('-id')
+
+class MyOrderDetailView(DetailView):
+    model = Order
+    template_name = "auth/my_order_details.html"
