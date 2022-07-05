@@ -65,6 +65,9 @@ class Order(models.Model):
     def get_total(self):
         return sum([order_item.get_total_item_price() for order_item in self.product.all()])
 
+    def get_total_quantity(self):
+        return sum([order_item.quantity for order_item in self.product.all()])
+
 class BillingInformation(models.Model):
     user = models.ForeignKey(to=Accounts, on_delete=models.CASCADE, blank=True, null=True)
     address = models.CharField(max_length=200)

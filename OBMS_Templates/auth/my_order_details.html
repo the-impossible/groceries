@@ -25,12 +25,20 @@
 						<div class="card-body">
 							<h4 class="card-header">{{ object.user.fullname }} purchase details
 								{% if request.user.is_superuser %}
-								<a href="" class="btn btn-success float-right mb-2">confirm Delivery</a>
+								<form action="{% url 'auth:confirm_delivery' %}" class="mb-4" method="post">
+									{% csrf_token %}
+									<input type="hidden" value="{{object.pk}}" name="key">
+									{% if object.delivered %}
+									<button class="btn btn-warning float-right" name="undo">Not Delivered?</button>
+									{% else %}
+									<button class="btn btn-info float-right" name="do">Delivered?</button>
+								{% endif %}
+								</form>
 								{% endif %}
 							</h4>
 							<hr>
 							{% if  object.delivered  %}
-							<p class="text-center text-success"> Delivered Sucessfully
+							<p class="text-center text-success"> Delivered Successfully
 								{% else %}
 							<p class="text-center text-warning"> Pending Delivery
 							{% endif %}
@@ -67,6 +75,13 @@
 							</ul>
 							<hr>
 							{% endfor %}
+							<h4 class="text-center">
+								Total Order Price: ₦{{ object.get_total }}
+							</h4>
+						</div>
+						<div class="card-footer">
+							<a href="{% url 'auth:receipt' object.pk %}" class="btn btn-success float-r
+							ight mb-2">View Receipt</a>
 						</div>
 					</div>
 				</div>

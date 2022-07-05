@@ -53,6 +53,13 @@ def add_to_cart(request, slug):
     product = get_object_or_404(Product, slug=slug)
     user_id = request.session['nonuser']
 
+    # if request.user.is_authenticated:
+    #     order_item, created = OrderItem.objects.get_or_create(user=request.user, completed=False, product=product)
+    #     order_qs = Order.objects.filter(user=request.user, ordered=False)
+    # else:
+    #     order_item, created = OrderItem.objects.get_or_create(session_id=user_id, completed=False, product=product)
+    #     order_qs = Order.objects.filter(session_id=user_id, ordered=False)
+
     order_item, created = OrderItem.objects.get_or_create(session_id=user_id, completed=False, product=product)
     order_qs = Order.objects.filter(session_id=user_id, ordered=False)
 

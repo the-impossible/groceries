@@ -5,6 +5,8 @@
             <li class="nav-label">
                 <a class="nav-text" href="{% url 'auth:dashboard' %}" aria-expanded="false">Dashboard</a>
             </li>
+
+            {% if request.user.is_superuser %}
             <li class="mega-menu mega-menu-sm">
                 <a class="has-arrow" href="javascript:void()" aria-expanded="false">
                     <i class="icon-people menu-icon"></i><span class="nav-text">Customer</span>
@@ -23,6 +25,7 @@
                     <li><a href="{% url 'auth:manage_admin' %}">Manage Admin Account</a></li>
                 </ul>
             </li>
+            {% endif %}
             <li class="nav-label">Products</li>
             <li>
                 <a class="has-arrow" href="javascript:void()" aria-expanded="false">
@@ -30,8 +33,10 @@
                 </a>
                 <ul aria-expanded="false">
                     <li><a href="{% url 'auth:all_products' %}">Available Products</a></li>
+                    {% if request.user.is_superuser %}
                     <li><a href="{% url 'auth:add_product' %}">Add Product</a></li>
                     <li><a href="{% url 'auth:manage_products' %}">Manage Products</a></li>
+                    {% endif %}
                 </ul>
             </li>
             <li class="nav-label">Orders</li>

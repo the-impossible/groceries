@@ -29,6 +29,9 @@ from OBMS_auth.views import (
     CheckOutView,
     MyOrderView,
     MyOrderDetailView,
+    confirm_delivery,
+
+    ViewPDF,
 )
 
 app_name = 'auth'
@@ -53,6 +56,10 @@ urlpatterns = [
     path('checkout', CheckOutView.as_view(), name='checkout'),
     path('my_orders', MyOrderView.as_view(), name='my_orders'),
     path('my_orders_details/<pk>', MyOrderDetailView.as_view(), name='my_orders_details'),
+    path('confirm_delivery', confirm_delivery, name='confirm_delivery'),
+
+    # Receipt
+    path('receipt/<int:order_id>', ViewPDF.as_view(), name='receipt'),
 
     # PRODUCT
     path('all_products', AllProductsListView.as_view(), name='all_products'),

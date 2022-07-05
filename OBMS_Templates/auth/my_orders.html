@@ -62,7 +62,17 @@
 											</td>
 											<td>{{ product.payment.date_created }}</td>
 											{% if request.user.is_superuser %}
-											<td><button class="btn btn-info ">Delivered?</button></td>
+											<td>
+												<form action="{% url 'auth:confirm_delivery' %}" method="post">
+													{% csrf_token %}
+													<input type="hidden" value="{{product.pk}}" name="key">
+													{% if product.delivered %}
+													<button class="btn btn-warning btn-sm" name="undo">Not Delivered?</button>
+													{% else %}
+													<button class="btn btn-info btn-sm" name="do">Delivered?</button>
+												{% endif %}
+												</form>
+											</td>
 											{% endif %}
 										</tr>
 										{% endfor %}

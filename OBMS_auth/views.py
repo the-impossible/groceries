@@ -3,16 +3,22 @@ from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView
 from django.views import View
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.mixins import LoginRequiredMixin
+
 # My app imports
 from OBMS_auth.forms import AccountCreationForm, EditAccountCreationForm, BillingForm
 from OBMS_auth.models import Accounts
 from OBMS_basics.models import Product, Order, BillingInformation, Payment, OrderItem
+# To_PDF
+from io import BytesIO
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+# Payment
 import stripe
 stripe.api_key = "sk_test_51L5Xs6GCAqCizi1RncjTC84yc0J7jaecLFB5gj07ZDNWCREFyEylsunXTltlQleL3lWzEcLsqIFCInvn6wGYu2Xa00cIHRZjMz"
 
@@ -84,9 +90,11 @@ class LogoutView(View):
 class ProfileView(View):
     def get(self, request, user_id):
         user = get_object_or_404(Accounts, id=user_id)
+        orders = Order.objects.filter(user=request.user).count()
         form = EditAccountCreationForm(instance=user)
         context = {
             'form':form,
+            'orders':orders,
             'user':user,
         }
         return render(request,'auth/profile.html', context)
@@ -385,8 +393,50 @@ class MyOrderView(ListView):
     template_name = "auth/my_orders.html"
 
     def get_queryset(self):
+        if self.request.user.is_superuser:
+            return Order.objects.all().order_by('-id')
         return Order.objects.filter(user=self.request.user).order_by('-id')
 
 class MyOrderDetailView(DetailView):
     model = Order
     template_name = "auth/my_order_details.html"
+
+def confirm_delivery(request):
+    try:
+        key = request.POST.get('key')
+        order = Order.objects.get(pk=key)
+        if 'do' in request.POST:
+            order.delivered = True
+            messages.success(request, 'Delivery of item confirmed!')
+        else:
+            order.delivered = False
+            messages.success(request, 'Change of delivery status successful!')
+        order.save()
+        return redirect('auth:my_orders')
+    except :
+        messages.error(request, 'Order not found!')
+        return redirect('auth:my_orders')
+
+def render_to_pdf(template_src, context_dict={}):
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("Utf-8")), result)
+    # pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return None
+
+class ViewPDF(View):
+    def get(self, request, *args, **kwargs):
+        try:
+            order = Order.objects.get(pk=kwargs['order_id'])
+            context = {'order':order}
+            pdf = render_to_pdf('auth/receipt.html', context)
+            return render(request, 'auth/receipt.html', context)
+            # return HttpResponse(pdf, content_type='application/pdf')
+        except ObjectDoesNotExist:
+            messages.info(request, 'Unable to generate invoice!!')
+            return redirect('auth:my_orders')
+
