@@ -5,6 +5,7 @@ from django.views import View
 from django.views.generic import DetailView
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 
 #My App imports
 from OBMS_basics.models import Product, OrderItem, Order
@@ -28,6 +29,8 @@ class ProductView(View):
         context = {
             'products':products,
         }
+        if request.user.is_authenticated:
+            return redirect('auth:all_products')
         return render(request,'basics/product.html', context)
 
 class ProductDetailView(DetailView):
@@ -37,7 +40,7 @@ class ProductDetailView(DetailView):
 class OrderSummaryView(View):
     def get(self, request):
         try:
-            order = Order.objects.get(session_id=request.session['nonuser'], ordered=False)
+            order = Order.objects.get(user=request.user, ordered=False)
             context = {
                 'orders': order
             }
@@ -49,19 +52,16 @@ class ContactView(View):
     def get(self, request):
         return render(request,'basics/contact.html')
 
+@login_required(login_url='/auth/login')
 def add_to_cart(request, slug):
     product = get_object_or_404(Product, slug=slug)
-    user_id = request.session['nonuser']
+    # user_id = request.session['nonuser']
 
-    # if request.user.is_authenticated:
-    #     order_item, created = OrderItem.objects.get_or_create(user=request.user, completed=False, product=product)
-    #     order_qs = Order.objects.filter(user=request.user, ordered=False)
-    # else:
-    #     order_item, created = OrderItem.objects.get_or_create(session_id=user_id, completed=False, product=product)
-    #     order_qs = Order.objects.filter(session_id=user_id, ordered=False)
+    order_item, created = OrderItem.objects.get_or_create(user=request.user, completed=False, product=product)
+    order_qs = Order.objects.filter(user=request.user, ordered=False)
 
-    order_item, created = OrderItem.objects.get_or_create(session_id=user_id, completed=False, product=product)
-    order_qs = Order.objects.filter(session_id=user_id, ordered=False)
+    # order_item, created = OrderItem.objects.get_or_create(session_id=user_id, completed=False, product=product)
+    # order_qs = Order.objects.filter(session_id=user_id, ordered=False)
 
     # Performing QUANTITY validation
     requested_quantity = 0
@@ -97,7 +97,7 @@ def add_to_cart(request, slug):
             order.product.add(order_item)
     else:
         ordered_date = timezone.now()
-        order = Order.objects.create(session_id=user_id, order_date=ordered_date)
+        order = Order.objects.create(user=request.user, order_date=ordered_date)
         order.product.add(order_item)
         messages.success(request, "This Product has been added to Cart!")
 
@@ -106,16 +106,17 @@ def add_to_cart(request, slug):
     else:
         return redirect('basics:product_detail', slug=slug)
 
+@login_required(login_url='/auth/login')
 def remove_from_cart(request, slug, mode='single'):
     product = get_object_or_404(Product, slug=slug)
-    user_id = request.session['nonuser']
+    # user_id = request.session['nonuser']
 
-    order_qs = Order.objects.filter(session_id=user_id, ordered=False)
+    order_qs = Order.objects.filter(user=request.user, ordered=False)
 
     if order_qs.exists():
         order = order_qs[0]
         if order.product.filter(product__slug=product.slug).exists():
-            order_item = OrderItem.objects.filter(session_id=user_id, completed=False, product=product)[0]
+            order_item = OrderItem.objects.filter(user=request.user, completed=False, product=product)[0]
             if mode == 'all':
                 order_item.delete()
                 order.product.remove(order_item)
@@ -128,16 +129,9 @@ def remove_from_cart(request, slug, mode='single'):
                 else:
                     order.product.remove(order_item)
                     messages.info(request, "This Product has been remove from Cart!")
-            if request.user.is_authenticated:
-                return redirect('auth:order_summary')
-            else:
-                return redirect('basics:order_summary')
+            return redirect('basics:order_summary')
         else:
             messages.info(request, "This Product is not in your Cart!")
     else:
         messages.info(request, "User don't have an active order")
-    if request.user.is_authenticated:
-        return redirect('auth:all_products')
-    else:
-        return redirect('basics:product')
-
+    return redirect('auth:all_products')

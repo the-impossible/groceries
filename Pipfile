@@ -4,8 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django-crispy-forms = "*"
+django = "*"
+stripe = "*"
 xhtml2pdf = "*"
+pillow = "*"
+django-crispy-forms = "*"
+bcrypt = "*"
+argon2-cffi = "*"
 
 [dev-packages]
 

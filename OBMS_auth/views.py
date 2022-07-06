@@ -25,9 +25,11 @@ stripe.api_key = "sk_test_51L5Xs6GCAqCizi1RncjTC84yc0J7jaecLFB5gj07ZDNWCREFyEyls
 # Create your views here.
 class DashboardView(View):
     def get(self, request):
+        happy = Order.objects.filter(delivered=True).count() / 100
 
         context = {
             'customers':Accounts.objects.filter(is_staff=False).count(),
+            'happy':happy,
             'products':Product.objects.all().count(),
             'amount_sold':sum([amount.amount for amount in Payment.objects.all()]),
         }
@@ -55,7 +57,6 @@ class LoginView(View):
         return render(request, 'auth/login.html', context)
 
     def post(self, request):
-        jump_to =  request.POST.get('next', None)
         email = request.POST.get('email').strip().lower()
         password = request.POST.get('password')
 
@@ -67,10 +68,7 @@ class LoginView(View):
                 if user.is_active:
                     login(request, user)
                     messages.success(request, f'You are now signed in {user.get_name()}')
-                    if jump_to == 'None':
-                        return redirect('auth:dashboard')
-                    return redirect(f"auth:{jump_to.split('/')[-1]}")
-
+                    return redirect('auth:dashboard')
                 else:
                     messages.warning(request, 'Account not active contact the administrator')
                     return redirect('auth:login')
@@ -268,7 +266,7 @@ class OrderSummaryView(LoginRequiredMixin, View):
 
     def get(self, request):
         try:
-            order = Order.objects.get(session_id=request.session['nonuser'], ordered=False)
+            order = Order.objects.get(user=request.user, ordered=False)
             context = {
                 'orders': order
             }
@@ -315,7 +313,7 @@ class CheckOutView(LoginRequiredMixin, View):
 
     def get(self, request):
         try:
-            order = Order.objects.get(session_id=request.session['nonuser'], ordered=False)
+            order = Order.objects.get(user=request.user, ordered=False)
             form = BillingForm(instance=request.user)
             context = {
                 'orders': order,
@@ -329,7 +327,7 @@ class CheckOutView(LoginRequiredMixin, View):
     def post(self, request):
         form = BillingForm(request.POST, instance=request.user)
         if form.is_valid():
-            order = Order.objects.get(session_id=request.session['nonuser'], ordered=False)
+            order = Order.objects.get(user=request.user, ordered=False)
             details = form.save(commit=False)
 
             email = details.email
@@ -354,12 +352,10 @@ class CheckOutView(LoginRequiredMixin, View):
                 amount=amount,
                 stripe_charge_id='STRIPE_test',
                 # stripe_charge_id=charge['id]',
-                session_id=request.session['nonuser']
             )
             billing = BillingInformation.objects.create(
                 user=request.user,
                 address=address,
-                session_id=request.session['nonuser']
             )
             # ASSIGN payment, billing to the order and set ordered to be true
             order.payment = payment
@@ -369,14 +365,13 @@ class CheckOutView(LoginRequiredMixin, View):
             order.save()
 
             # SUBTRACT quantity from product
-            print('ORDER', order.product.all())
             for order in order.product.all():
                 product = Product.objects.get(slug=order.product.slug)
                 product.quantity -= order.quantity
                 product.save()
 
             # ASSIGN orderItem to user
-            order_item = OrderItem.objects.filter(session_id=request.session['nonuser'])
+            order_item = OrderItem.objects.filter(user=request.user)
             for item in order_item:
                 item.user = request.user
                 item.completed = True
@@ -394,8 +389,8 @@ class MyOrderView(ListView):
 
     def get_queryset(self):
         if self.request.user.is_superuser:
-            return Order.objects.all().order_by('-id')
-        return Order.objects.filter(user=self.request.user).order_by('-id')
+            return Order.objects.filter(ordered=True).order_by('-id')
+        return Order.objects.filter(user=self.request.user, ordered=True).order_by('-id')
 
 class MyOrderDetailView(DetailView):
     model = Order

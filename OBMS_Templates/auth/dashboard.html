@@ -11,6 +11,7 @@
 		<div class="container-fluid mt-3">
 			{% include "partials/messages.html" %}
 			<div class="row">
+				{% if request.user.is_superuser %}
 				<div class="col-lg-3 col-sm-6">
 					<div class="card gradient-1">
 						<div class="card-body">
@@ -55,7 +56,7 @@
 						<div class="card-body">
 							<h3 class="card-title text-white">Customer Satisfaction</h3>
 							<div class="d-inline-block">
-								<h2 class="text-white">99%</h2>
+								<h2 class="text-white">{{ happy }}%</h2>
 							</div>
 							<span class="float-right display-5 opacity-5"
 								><i class="fa fa-heart"></i
@@ -63,6 +64,34 @@
 						</div>
 					</div>
 				</div>
+				{% else %}
+				<div class="col-lg-3 col-sm-6">
+					<div class="card gradient-1">
+						<div class="card-body">
+							<h3 class="card-title text-white">Total Orders</h3>
+							<div class="d-inline-block">
+								<h2 class="text-white">{{ ordered }}</h2>
+							</div>
+							<span class="float-right display-5 opacity-5"
+								><i class="fa fa-shopping-cart"></i
+							></span>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-3 col-sm-6">
+					<div class="card gradient-2">
+						<div class="card-body">
+							<h3 class="card-title text-white">Items in Cart</h3>
+							<div class="d-inline-block">
+								<h2 class="text-white">{{ order_quantity }}</h2>
+							</div>
+							<span class="float-right display-5 opacity-5"
+								><i class="fa fa-shopping-cart"></i
+							></span>
+						</div>
+					</div>
+				</div>
+				{% endif %}
 			</div>
 		</div>
 	</div>

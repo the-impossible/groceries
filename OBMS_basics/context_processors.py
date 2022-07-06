@@ -1,24 +1,19 @@
 from OBMS_basics.models import OrderItem, Order
 import uuid
 
-def generate_session_id(request):
+def order(request):
     try:
-        request.session['nonuser']
-    except KeyError:
-        request.session['nonuser'] = str(uuid.uuid4())
-
-    try:
-        order = Order.objects.get(session_id=request.session['nonuser'], ordered=False)
-        order_quantity = order.product.count()
+        if request.user.is_authenticated:
+            order = Order.objects.get(user=request.user, ordered=False)
+            ordered = Order.objects.filter(user=request.user, ordered=True).count()
+            order_quantity = order.product.count()
+            return {
+                'order':order,
+                'ordered':ordered,
+                'order_quantity':order_quantity,
+            }
+        return ''
     except Order.DoesNotExist:
-        order_quantity = 0
         return {
-            'session_id':request.session['nonuser'],
-            'order_quantity':order_quantity,
-        }
-    else:
-        return {
-            'session_id':request.session['nonuser'],
-            'order':order,
-            'order_quantity':order_quantity,
+            'order_quantity':0,
         }

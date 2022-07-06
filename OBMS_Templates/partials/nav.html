@@ -27,13 +27,6 @@
                   <a class="nav-link" href="{% url 'auth:login' %}">Login</a>
               </li>
                 {% endif %}
-               <li class="nav-item">
-                  <a class="nav-link" href="{% url 'basics:order_summary' %}">
-                        <i class="cart fa fa-shopping-cart">
-                           <span class="badge badge-success">{{ order_quantity }}</span>
-                        </i>
-                  </a>
-                </li>
                 <form class="form-inline">
                    <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
                    <i class="fa fa-search" aria-hidden="true"></i>

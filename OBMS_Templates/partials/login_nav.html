@@ -36,7 +36,14 @@
             <ul class="clearfix">
                 <li class="icons dropdown"><a href="{% url 'auth:order_summary' %}" data-toggle="dropdown">
                     <i class="fa fa-shopping-cart"></i>
-                    <span class="badge badge-pill gradient-1">{{ order_quantity }}</span>
+                    <span class="badge badge-pill gradient-1">
+
+                        {% if order_quantity %}
+                        {{ order_quantity }}
+                        {% else %}
+                        0
+                        {% endif %}
+                    </span>
                     </a>
                     <div class="drop-down animated fadeIn dropdown-menu">
                         <div class="dropdown-content-heading d-flex justify-content-between">
