@@ -2,7 +2,7 @@
 from django.shortcuts import render, get_object_or_404, render, redirect
 from django.contrib import messages
 from django.views import View
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
@@ -48,6 +48,7 @@ class OrderSummaryView(View):
             messages.error(request, 'You do not have an active order')
             return redirect('basics:product')
         return render(request, 'basics/order_summary.html', context)
+
 class ContactView(View):
     def get(self, request):
         return render(request,'basics/contact.html')
@@ -135,3 +136,22 @@ def remove_from_cart(request, slug, mode='single'):
     else:
         messages.info(request, "User don't have an active order")
     return redirect('auth:all_products')
+
+class SearchProductView(ListView):
+    model = Product
+    template_name = "auth/search.html"
+
+    def get_queryset(self):
+        qs = self.request.GET.get('qs')
+        result = (
+            Product.objects.filter(title__icontains=qs) |
+            Product.objects.filter(description__icontains=qs) |
+            Product.objects.filter(slug__icontains=qs)
+        )
+        return result
+
+    def get_context_data(self, **kwargs):
+        context = super(SearchProductView, self).get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('qs')
+        return context
+

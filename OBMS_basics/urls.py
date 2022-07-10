@@ -11,6 +11,7 @@ from OBMS_basics.views import (
     remove_from_cart,
     ProductDetailView,
     OrderSummaryView,
+    SearchProductView,
 )
 
 app_name = 'basics'
@@ -29,4 +30,7 @@ urlpatterns = [
     path('add_to_cart/<slug>/', add_to_cart, name='add_to_cart'),
     path('remove_from_cart/<slug>/<str:mode>', remove_from_cart, name='remove_from_cart'),
     path('order_summary', OrderSummaryView.as_view(), name='order_summary'),
+
+    # SEARCH
+    path('search', SearchProductView.as_view(), name='search'),
 ]

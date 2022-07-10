@@ -24,14 +24,20 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text bg-transparent border-0 pr-2 pr-sm-3" id="basic-addon1"><i class="mdi mdi-magnify"></i></span>
                 </div>
-                <input type="search" class="form-control" placeholder="Search Product" aria-label="Search Dashboard">
-                <div class="drop-down animated flipInX d-md-none">
-                    <form action="#">
-                        <input type="text" class="form-control" placeholder="Search">
-                    </form>
-                </div>
+                <form action="{% url 'basics:search' %}" method="get" id="search">
+                    <input type="search" name="qs" id="qs" class="form-control" placeholder="Search Product" aria-label="Search Dashboard">
+                </form>
+                <script>
+                    document.getElementById("qs").addEventListener("keydown", (e) => {
+                        if(e.key == "Enter"){
+                            e.preventDefault();
+                            document.getElementById('search').submit();
+                        }
+                    })
+                </script>
             </div>
         </div>
+
         <div class="header-right">
             <ul class="clearfix">
                 <li class="icons dropdown"><a href="{% url 'auth:order_summary' %}" data-toggle="dropdown">

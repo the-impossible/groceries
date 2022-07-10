@@ -23,7 +23,8 @@ import stripe
 stripe.api_key = "sk_test_51L5Xs6GCAqCizi1RncjTC84yc0J7jaecLFB5gj07ZDNWCREFyEylsunXTltlQleL3lWzEcLsqIFCInvn6wGYu2Xa00cIHRZjMz"
 
 # Create your views here.
-class DashboardView(View):
+class DashboardView(LoginRequiredMixin, View):
+    login_url = '/auth/login'
     def get(self, request):
         happy = Order.objects.filter(delivered=True).count() / 100
 
@@ -85,7 +86,8 @@ class LogoutView(View):
         messages.success(request, 'You are now signed out!')
         return redirect('auth:login')
 
-class ProfileView(View):
+class ProfileView(LoginRequiredMixin, View):
+    login_url = '/auth/login'
     def get(self, request, user_id):
         user = get_object_or_404(Accounts, id=user_id)
         orders = Order.objects.filter(user=request.user).count()
@@ -143,17 +145,19 @@ class ProfileView(View):
 
         return render(request,'auth/profile.html', context)
 
-class AllProductsListView(ListView):
+class AllProductsListView(LoginRequiredMixin, ListView):
+    login_url = '/auth/login'
     model = Product
     paginate_by = 8
     template_name = "auth/all_products.html"
     ordering = ['-id']
 
-class ProductDetailListView(DetailView):
+class ProductDetailListView(LoginRequiredMixin, DetailView):
     model = Product
     template_name = "auth/product_details.html"
 
-class ManageProductsView(ListView):
+class ManageProductsView(LoginRequiredMixin, ListView):
+    login_url = '/auth/login'
     model = Product
     template_name = "auth/manage_products.html"
 
