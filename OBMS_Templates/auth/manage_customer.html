@@ -16,7 +16,6 @@
 				</ol>
 			</div>
 		</div>
-
 		<div class="container-fluid">
 			{% include "partials/messages.html" %}
 			<div class="row">
@@ -26,7 +25,7 @@
 							<h4 class="card-title">Manage Customers</h4>
 							{% if object_list %}
 							<div class="table-responsive">
-								<table class="table table-striped table-bordered table-hover text-center zero-configuration">
+								<table class="table table-striped table-bordered table-hover text-center zero-configuration table-sm">
 									<thead>
 										<tr>
 											<th>S/N</th>
@@ -62,7 +61,7 @@
 															<div class="modal-footer">
 																<form action="{% url 'auth:delete_customer' customer.id  %}" method="POST">
 																	{% csrf_token %}
-																	<button type="submit" class="btn btn-warning btn-block">Delete</button>
+																	<button type="submit" class="btn btn-warning ">Delete</button>
 																</form>
 															</div>
 														</div>

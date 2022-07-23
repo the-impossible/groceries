@@ -153,6 +153,7 @@ class AllProductsListView(LoginRequiredMixin, ListView):
     ordering = ['-id']
 
 class ProductDetailListView(LoginRequiredMixin, DetailView):
+    login_url = '/auth/login'
     model = Product
     template_name = "auth/product_details.html"
 
@@ -181,7 +182,8 @@ class EditProductsView(SuccessMessageMixin, UpdateView):
             'slug':self.kwargs['slug']
         })
 
-class AddProductView(CreateView):
+class AddProductView(LoginRequiredMixin, CreateView):
+    login_url = '/auth/login'
     model = Product
     fields = [
         "title",
@@ -195,7 +197,8 @@ class AddProductView(CreateView):
 
     success_url = reverse_lazy("auth:manage_products")
 
-class ProductDeleteView(SuccessMessageMixin, DeleteView):
+class ProductDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    login_url = '/auth/login'
     model = Product
     success_message = "Product deleted successfully!"
 
@@ -223,14 +226,15 @@ class ManageCustomersView(ListView):
     def get_queryset(self):
         return Accounts.objects.filter(is_staff=False).order_by('-id')
 
-class AccountDeleteView(SuccessMessageMixin, DeleteView):
+class AccountDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    login_url = '/auth/login'
     model = Accounts
     success_message = "Account deleted successfully!"
 
     def get_success_url(self):
         return reverse("auth:manage_customer")
 
-class CreateAdminAccountView(SuccessMessageMixin, CreateView):
+class CreateAdminAccountView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     login_url = '/auth/login'
 
     model = Accounts
@@ -256,7 +260,7 @@ class ManageAdminView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Accounts.objects.filter(is_staff=True).order_by('-id')
 
-class DeleteAdmin(LoginRequiredMixin, AccountDeleteView):
+class DeleteAdmin(AccountDeleteView):
     login_url = '/auth/login'
 
     def __init__(self, *args):
@@ -343,19 +347,19 @@ class CheckOutView(LoginRequiredMixin, View):
                 messages.warning(request, 'Amount cannot be greater than 99999999₦ on a Test payment')
                 return render(request, 'auth/checkout.html', {'form':form})
 
-            # source = request.POST.get('stripeToken')
-            # charge = stripe_payment(email, fullname, amount, source)
-            # if charge:
-            #     pass
-            # else:
-            #     return render(request, 'auth/checkout.html', {'form':form})
+            source = request.POST.get('stripeToken')
+            charge = stripe_payment(email, fullname, amount, source)
+            if charge:
+                pass
+            else:
+                return render(request, 'auth/checkout.html', {'form':form})
 
             # CREATE the payment and billing
             payment = Payment.objects.create(
                 user=request.user,
                 amount=amount,
-                stripe_charge_id='STRIPE_test',
-                # stripe_charge_id=charge['id]',
+                # stripe_charge_id='STRIPE_test',
+                stripe_charge_id=charge['id'],
             )
             billing = BillingInformation.objects.create(
                 user=request.user,
@@ -387,7 +391,8 @@ class CheckOutView(LoginRequiredMixin, View):
 
         return render(request, 'auth/checkout.html', {'form':form})
 
-class MyOrderView(ListView):
+class MyOrderView(LoginRequiredMixin, ListView):
+    login_url = '/auth/login'
     model = Order
     template_name = "auth/my_orders.html"
 
@@ -396,7 +401,8 @@ class MyOrderView(ListView):
             return Order.objects.filter(ordered=True).order_by('-id')
         return Order.objects.filter(user=self.request.user, ordered=True).order_by('-id')
 
-class MyOrderDetailView(DetailView):
+class MyOrderDetailView(LoginRequiredMixin, DetailView):
+    login_url = '/auth/login'
     model = Order
     template_name = "auth/my_order_details.html"
 
@@ -427,7 +433,8 @@ def render_to_pdf(template_src, context_dict={}):
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return None
 
-class ViewPDF(View):
+class ViewPDF(LoginRequiredMixin, View):
+    login_url = '/auth/login'
     def get(self, request, *args, **kwargs):
         try:
             order = Order.objects.get(pk=kwargs['order_id'])

@@ -85,7 +85,7 @@ def add_to_cart(request, slug):
         if request.user.is_authenticated:
             return redirect('auth:product_details', slug=slug)
         else:
-            return redirect('basics:product_detail', slug=slug)
+            return redirect('auth:product_detail', slug=slug)
 
     if order_qs.exists():
         order = order_qs[0]
@@ -105,7 +105,7 @@ def add_to_cart(request, slug):
     if request.user.is_authenticated:
         return redirect('auth:product_details', slug=slug)
     else:
-        return redirect('basics:product_detail', slug=slug)
+        return redirect('auth:product_detail', slug=slug)
 
 @login_required(login_url='/auth/login')
 def remove_from_cart(request, slug, mode='single'):
@@ -130,7 +130,7 @@ def remove_from_cart(request, slug, mode='single'):
                 else:
                     order.product.remove(order_item)
                     messages.info(request, "This Product has been remove from Cart!")
-            return redirect('basics:order_summary')
+            return redirect('auth:order_summary')
         else:
             messages.info(request, "This Product is not in your Cart!")
     else:

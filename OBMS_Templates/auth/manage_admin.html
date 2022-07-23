@@ -26,7 +26,7 @@
 							<h4 class="card-title">Manage Administrator</h4>
 							{% if object_list %}
 							<div class="table-responsive">
-								<table class="table table-striped table-bordered table-hover text-center zero-configuration">
+								<table class="table table-sm table-striped table-bordered table-hover text-center zero-configuration">
 									<thead>
 										<tr>
 											<th>S/N</th>
@@ -62,7 +62,7 @@
 															<div class="modal-footer">
 																<form action="{% url 'auth:delete_admin' admin.id %}" method="POST">
 																	{% csrf_token %}
-																	<button type="submit" class="btn btn-warning btn-block">Delete</button>
+																	<button type="submit" class="btn btn-warning ">Delete</button>
 																</form>
 															</div>
 														</div>
