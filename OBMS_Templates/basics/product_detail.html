@@ -38,7 +38,9 @@
                               <div class="p-4">
                                  <p class="lead font-weight-bold">{{object.title}}</p>
                                  <p class="lead"><b>Price:</b> <span>₦{{object.price}}</span> </p>
-                                 <p class="lead"><b>Available:</b> <span>{{object.quantity}}</span> </p>
+                                 <p class="lead"><b>Available:</b> <span> {% if object.quantity <= 0 %} <span class="badge badge-pill bg-danger text-light ">Out of stock</span> {% else %} {{object.quantity}}
+
+                                 {% endif %}</span> </p>
                                  <p class="lead font-weight-bold">Description</p>
                                  <p>{{ object.description }}</p>
                                  <form method="post" action="{{ object.get_add_to_cart_url }}">

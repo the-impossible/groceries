@@ -3,6 +3,7 @@ from django import forms
 
 # My app imports
 from OBMS_auth.models import Accounts
+from OBMS_basics.models import Product
 
 class AccountCreationForm(forms.ModelForm):
     fullname = forms.CharField(required=True,widget=forms.TextInput(
@@ -129,3 +130,16 @@ class BillingForm(forms.ModelForm):
     class Meta:
         model = Accounts
         fields = ('fullname', 'email', 'phone', 'address')
+
+class AddProductForm(forms.ModelForm):
+
+    class Meta:
+        model = Product
+        fields = '__all__'
+
+    def clean_quantity(self):
+        quantity = self.cleaned_data.get('quantity')
+        if quantity < 1 :
+            raise forms.ValidationError('Quantity must be greater or equal to 1')
+        return quantity
+

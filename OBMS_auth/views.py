@@ -14,6 +14,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from OBMS_auth.forms import AccountCreationForm, EditAccountCreationForm, BillingForm
 from OBMS_auth.models import Accounts
 from OBMS_basics.models import Product, Order, BillingInformation, Payment, OrderItem
+from OBMS_auth.forms import AddProductForm
 # To_PDF
 from io import BytesIO
 from django.template.loader import get_template
@@ -152,29 +153,28 @@ class AllProductsListView(LoginRequiredMixin, ListView):
     template_name = "auth/all_products.html"
     ordering = ['-id']
 
+    def get_queryset(self):
+        return Product.objects.filter(quantity__gte=1).order_by('-id')
+
 class ProductDetailListView(LoginRequiredMixin, DetailView):
     login_url = '/auth/login'
     model = Product
     template_name = "auth/product_details.html"
+
 
 class ManageProductsView(LoginRequiredMixin, ListView):
     login_url = '/auth/login'
     model = Product
     template_name = "auth/manage_products.html"
 
-    def get_queryset(self):
-        return Product.objects.filter(quantity__gte=1).order_by('-id')
+    # def get_queryset(self):
+    #     return Product.objects.filter(quantity__gte=1).order_by('-id')
 
 class EditProductsView(SuccessMessageMixin, UpdateView):
     model = Product
+    form_class = AddProductForm
     success_message = "Product has been edited successfully!"
-    fields = [
-        "title",
-        "price",
-        "quantity",
-        "description",
-        "image",
-    ]
+
     template_name = "auth/edit_product.html"
 
     def get_success_url(self):
@@ -184,15 +184,8 @@ class EditProductsView(SuccessMessageMixin, UpdateView):
 
 class AddProductView(LoginRequiredMixin, CreateView):
     login_url = '/auth/login'
+    form_class = AddProductForm
     model = Product
-    fields = [
-        "title",
-        "price",
-        "quantity",
-        "slug",
-        "description",
-        "image",
-    ]
     template_name = 'auth/add_product.html'
 
     success_url = reverse_lazy("auth:manage_products")
@@ -275,9 +268,25 @@ class OrderSummaryView(LoginRequiredMixin, View):
     def get(self, request):
         try:
             order = Order.objects.get(user=request.user, ordered=False)
+
             context = {
                 'orders': order
             }
+
+
+            for order in order.product.all():
+                product = Product.objects.get(slug=order.product.slug)
+
+
+                if product.quantity < 1:
+
+                    order_item = OrderItem.objects.filter(user=request.user, completed=False, product=product)[0]
+
+                    order_item.delete()
+
+                    messages.error(request, f'{product.title} you ordered for is now out of stock and has been removed from cart!')
+                    return render(request, 'auth/order_summary.html', context)
+
         except ObjectDoesNotExist:
             messages.error(request, 'You do not have an active order')
             return redirect('auth:all_products')
@@ -288,14 +297,14 @@ def stripe_payment(email, fullname, amount, source):
         customer = stripe.Customer.create(
             email = email,
             name = fullname,
-            description = 'OBMS Goods payment',
+            description = 'Goods payment',
             source = source
         )
         charge = stripe.Charge.create(
             customer=customer,
             amount=amount * 100,
             currency='NGN',
-            description='OBMS Goods payment',
+            description='Goods payment',
         )
         return charge
     except stripe.error.CardError as e:
@@ -334,6 +343,7 @@ class CheckOutView(LoginRequiredMixin, View):
 
     def post(self, request):
         form = BillingForm(request.POST, instance=request.user)
+
         if form.is_valid():
             order = Order.objects.get(user=request.user, ordered=False)
             details = form.save(commit=False)
@@ -427,7 +437,6 @@ def render_to_pdf(template_src, context_dict={}):
     html = template.render(context_dict)
     result = BytesIO()
     pdf = pisa.pisaDocument(BytesIO(html.encode("Utf-8")), result)
-    # pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
 
     if not pdf.err:
         return HttpResponse(result.getvalue(), content_type='application/pdf')
@@ -441,7 +450,6 @@ class ViewPDF(LoginRequiredMixin, View):
             context = {'order':order}
             pdf = render_to_pdf('auth/receipt.html', context)
             return render(request, 'auth/receipt.html', context)
-            # return HttpResponse(pdf, content_type='application/pdf')
         except ObjectDoesNotExist:
             messages.info(request, 'Unable to generate invoice!!')
             return redirect('auth:my_orders')

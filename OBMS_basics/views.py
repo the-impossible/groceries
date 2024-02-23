@@ -118,6 +118,7 @@ def remove_from_cart(request, slug, mode='single'):
         order = order_qs[0]
         if order.product.filter(product__slug=product.slug).exists():
             order_item = OrderItem.objects.filter(user=request.user, completed=False, product=product)[0]
+
             if mode == 'all':
                 order_item.delete()
                 order.product.remove(order_item)
